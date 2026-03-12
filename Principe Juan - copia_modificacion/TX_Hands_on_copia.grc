@@ -278,7 +278,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: '1'
+    const: '0.05'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: complex
@@ -386,7 +386,7 @@ blocks:
     bus_structure: null
     coordinate: [2296, 912.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_tagged_stream_mux_0
   id: blocks_tagged_stream_mux
   parameters:
@@ -427,7 +427,7 @@ blocks:
     bus_structure: null
     coordinate: [2304, 1016.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: carrier_freq
   id: parameter
   parameters:
@@ -869,18 +869,18 @@ blocks:
     amp: 'False'
     bandwidth: 2e6
     center_freq: 435e6
-    comment: Nuevo Pauli
+    comment: ''
     dev_args: ''
     samp_rate: samp_rate
     type: fc32
-    vga: '20'
+    vga: gain
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
     coordinate: [2560, 928.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: virtual_sink_0_0
   id: virtual_sink
   parameters:
@@ -927,7 +927,7 @@ blocks:
     affinity: ''
     alias: ''
     bind: 'True'
-    comment: Sugerencia de Gemmini
+    comment: "Sugerencia de Gemmini para an\xE1lisis en lazo cerrado"
     drop_on_hwm: 'True'
     hwm: '-1'
     key: ''
@@ -941,7 +941,7 @@ blocks:
     bus_structure: null
     coordinate: [2552, 1204.0]
     rotation: 0
-    state: enabled
+    state: disabled
 
 connections:
 - [blocks_file_source_0, '0', blocks_stream_to_tagged_stream_0, '0']

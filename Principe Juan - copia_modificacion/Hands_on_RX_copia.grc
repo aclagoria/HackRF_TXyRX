@@ -391,7 +391,7 @@ blocks:
     bus_structure: null
     coordinate: [440, 376.0]
     rotation: 180
-    state: enabled
+    state: disabled
 - name: carrier_freq
   id: parameter
   parameters:
@@ -1016,19 +1016,19 @@ blocks:
     center_freq: 435e6
     comment: ''
     dev_args: ''
-    gain: '40'
+    gain: '16'
     maxoutbuf: '0'
     minoutbuf: '0'
     samp_rate: samp_rate
     type: fc32
-    vga: '62'
+    vga: '20'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
     coordinate: [48, 488.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: virtual_sink_0_1
   id: virtual_sink
   parameters:
@@ -1114,7 +1114,7 @@ blocks:
     affinity: ''
     alias: ''
     bind: 'False'
-    comment: Sugerencia de gemmini
+    comment: "Sugerencia de gemmini para an\xE1lisis en lazo cerrado"
     hwm: '-1'
     key: ''
     maxoutbuf: '0'
@@ -1129,7 +1129,7 @@ blocks:
     bus_structure: null
     coordinate: [768, 188.0]
     rotation: 180
-    state: enabled
+    state: disabled
 
 connections:
 - [analog_frequency_modulator_fc_0, '0', blocks_multiply_xx_0, '0']

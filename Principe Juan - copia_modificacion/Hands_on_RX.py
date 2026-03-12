@@ -24,7 +24,7 @@ from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
-from gnuradio import zeromq
+from gnuradio import soapy
 import sip
 import threading
 
@@ -95,7 +95,20 @@ class Hands_on_RX(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
-        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:50000', 100, False, (-1), '', False)
+        self.soapy_hackrf_source_0 = None
+        dev = 'driver=hackrf'
+        stream_args = ''
+        tune_args = ['']
+        settings = ['']
+
+        self.soapy_hackrf_source_0 = soapy.source(dev, "fc32", 1, '',
+                                  stream_args, tune_args, settings)
+        self.soapy_hackrf_source_0.set_sample_rate(0, samp_rate)
+        self.soapy_hackrf_source_0.set_bandwidth(0, 2e6)
+        self.soapy_hackrf_source_0.set_frequency(0, 435e6)
+        self.soapy_hackrf_source_0.set_gain(0, 'AMP', False)
+        self.soapy_hackrf_source_0.set_gain(0, 'LNA', min(max(16, 0.0), 40.0))
+        self.soapy_hackrf_source_0.set_gain(0, 'VGA', min(max(20, 0.0), 62.0))
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -203,8 +216,6 @@ class Hands_on_RX(gr.top_block, Qt.QWidget):
         self.digital_crc32_bb_0_0 = digital.crc32_bb(True, packet_length_tag_key, True)
         self.digital_constellation_decoder_cb_1 = digital.constellation_decoder_cb(payload_mod.base())
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(header_mod.base())
-        self.blocks_tag_gate_0 = blocks.tag_gate(gr.sizeof_gr_complex * 1, False)
-        self.blocks_tag_gate_0.set_single_key("")
         self.blocks_repack_bits_bb_0_1 = blocks.repack_bits_bb(payload_mod.bits_per_symbol(), 8, packet_length_tag_key, True, gr.GR_LSB_FIRST)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_char*1)
         self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
@@ -224,7 +235,6 @@ class Hands_on_RX(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_delay_0, 0), (self.blocks_multiply_xx_0, 1))
         self.connect((self.blocks_multiply_xx_0, 0), (self.digital_header_payload_demux_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_1, 0), (self.digital_crc32_bb_0_0, 0))
-        self.connect((self.blocks_tag_gate_0, 0), (self.blocks_correctiq_0, 0))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_packet_headerparser_b_0, 0))
         self.connect((self.digital_constellation_decoder_cb_1, 0), (self.blocks_repack_bits_bb_0_1, 0))
         self.connect((self.digital_crc32_bb_0_0, 0), (self.blocks_null_sink_0, 0))
@@ -240,7 +250,7 @@ class Hands_on_RX(gr.top_block, Qt.QWidget):
         self.connect((self.digital_ofdm_sync_sc_cfb_0, 1), (self.digital_header_payload_demux_0, 1))
         self.connect((self.fft_vxx_0_0, 0), (self.digital_ofdm_chanest_vcvc_0, 0))
         self.connect((self.fft_vxx_1, 0), (self.digital_ofdm_frame_equalizer_vcvc_1, 0))
-        self.connect((self.zeromq_sub_source_0, 0), (self.blocks_tag_gate_0, 0))
+        self.connect((self.soapy_hackrf_source_0, 0), (self.blocks_correctiq_0, 0))
 
 
     def closeEvent(self, event):
@@ -270,6 +280,7 @@ class Hands_on_RX(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.qtgui_freq_sink_x_0.set_frequency_range(self.carrier_freq, self.samp_rate)
+        self.soapy_hackrf_source_0.set_sample_rate(0, self.samp_rate)
 
     def get_pilot_symbols(self):
         return self.pilot_symbols
