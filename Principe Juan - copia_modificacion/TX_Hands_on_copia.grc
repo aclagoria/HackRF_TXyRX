@@ -278,7 +278,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: const
+    const: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: complex
@@ -648,7 +648,7 @@ blocks:
     bus_structure: null
     coordinate: [2848, 1084.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: pdu_tagged_stream_to_pdu_1
   id: pdu_tagged_stream_to_pdu
   parameters:
@@ -665,7 +665,7 @@ blocks:
     bus_structure: null
     coordinate: [2520, 1112.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: qtgui_freq_sink_x_0
   id: qtgui_freq_sink_x
   parameters:
@@ -920,6 +920,28 @@ blocks:
     coordinate: [48, 936.0]
     rotation: 0
     state: enabled
+- name: zeromq_pub_sink_0
+  id: zeromq_pub_sink
+  parameters:
+    address: tcp://127.0.0.1:50000
+    affinity: ''
+    alias: ''
+    bind: 'True'
+    comment: Sugerencia de Gemmini
+    drop_on_hwm: 'True'
+    hwm: '-1'
+    key: ''
+    pass_tags: 'False'
+    timeout: '100'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2552, 1204.0]
+    rotation: 0
+    state: enabled
 
 connections:
 - [blocks_file_source_0, '0', blocks_stream_to_tagged_stream_0, '0']
@@ -933,6 +955,7 @@ connections:
 - [blocks_tagged_stream_mux_0, '0', blocks_tag_debug_0, '0']
 - [blocks_tagged_stream_mux_0, '0', digital_ofdm_carrier_allocator_cvc_0, '0']
 - [blocks_throttle2_0_0, '0', pdu_tagged_stream_to_pdu_1, '0']
+- [blocks_throttle2_0_0, '0', zeromq_pub_sink_0, '0']
 - [digital_chunks_to_symbols_xx_0, '0', blocks_tagged_stream_mux_0, '0']
 - [digital_chunks_to_symbols_xx_0_0, '0', blocks_tagged_stream_mux_0, '1']
 - [digital_crc32_bb_0, '0', blocks_repack_bits_bb_0, '0']

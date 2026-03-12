@@ -24,8 +24,7 @@ from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
-from gnuradio import gr, pdu
-from gnuradio import network
+from gnuradio import zeromq
 import sip
 import threading
 
@@ -97,6 +96,7 @@ class Hands_on_Tx(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
+        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:50000', 100, False, (-1), '', True, True)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
             1024, #size
             samp_rate, #samp_rate
@@ -190,8 +190,6 @@ class Hands_on_Tx(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.pdu_tagged_stream_to_pdu_1 = pdu.tagged_stream_to_pdu(gr.types.complex_t, 'packet_len')
-        self.network_socket_pdu_1 = network.socket_pdu('TCP_SERVER', "localhost", '52001', 10000, False)
         self.fft_vxx_0 = fft.fft_vcc(fft_len, False, (), True, 1)
         self.digital_protocol_formatter_bb_0 = digital.protocol_formatter_bb(digital.header_format_ofdm(occupied_carriers,1,length_tag_key,), length_tag_key)
         self.digital_ofdm_cyclic_prefixer_0 = digital.ofdm_cyclic_prefixer(
@@ -208,7 +206,7 @@ class Hands_on_Tx(gr.top_block, Qt.QWidget):
         self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, packet_len, length_tag_key)
         self.blocks_repack_bits_bb_0_0 = blocks.repack_bits_bb(8, 1, length_tag_key, False, gr.GR_LSB_FIRST)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(8, payload_mod.bits_per_symbol(), length_tag_key, False, gr.GR_LSB_FIRST)
-        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(const)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(1)
         self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, 'C:\\Users\\alyk_\\Documents\\Sistemas de Comunicaciones Digitales\\referencias python\\actividad_2\\elquijote.txt', True, 0, 0)
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
 
@@ -216,7 +214,6 @@ class Hands_on_Tx(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.pdu_tagged_stream_to_pdu_1, 'pdus'), (self.network_socket_pdu_1, 'pdus'))
         self.connect((self.blocks_file_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_throttle2_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_time_sink_x_0, 0))
@@ -224,7 +221,7 @@ class Hands_on_Tx(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_repack_bits_bb_0_0, 0), (self.digital_chunks_to_symbols_xx_0, 0))
         self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.digital_crc32_bb_0, 0))
         self.connect((self.blocks_tagged_stream_mux_0, 0), (self.digital_ofdm_carrier_allocator_cvc_0, 0))
-        self.connect((self.blocks_throttle2_0_0, 0), (self.pdu_tagged_stream_to_pdu_1, 0))
+        self.connect((self.blocks_throttle2_0_0, 0), (self.zeromq_pub_sink_0, 0))
         self.connect((self.digital_chunks_to_symbols_xx_0, 0), (self.blocks_tagged_stream_mux_0, 0))
         self.connect((self.digital_chunks_to_symbols_xx_0_0, 0), (self.blocks_tagged_stream_mux_0, 1))
         self.connect((self.digital_crc32_bb_0, 0), (self.blocks_repack_bits_bb_0, 0))
@@ -255,7 +252,6 @@ class Hands_on_Tx(gr.top_block, Qt.QWidget):
 
     def set_const(self, const):
         self.const = const
-        self.blocks_multiply_const_vxx_0.set_k(self.const)
 
     def get_gain(self):
         return self.gain

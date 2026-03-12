@@ -24,8 +24,7 @@ from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
-from gnuradio import network
-from gnuradio import pdu
+from gnuradio import zeromq
 import sip
 import threading
 
@@ -96,6 +95,7 @@ class Hands_on_RX(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
+        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:50000', 100, False, (-1), '', False)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -179,8 +179,6 @@ class Hands_on_RX(gr.top_block, Qt.QWidget):
 
         self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_const_sink_x_0_win)
-        self.pdu_pdu_to_stream_x_0 = pdu.pdu_to_stream_c(pdu.EARLY_BURST_APPEND, 64)
-        self.network_socket_pdu_0 = network.socket_pdu('TCP_CLIENT', "localhost", '52001', 10000, False)
         self.fft_vxx_1 = fft.fft_vcc(fft_len, True, (), True, 1)
         self.fft_vxx_0_0 = fft.fft_vcc(fft_len, True, (), True, 1)
         self.digital_packet_headerparser_b_0 = digital.packet_headerparser_b(header_formatter.base())
@@ -219,7 +217,6 @@ class Hands_on_RX(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.msg_connect((self.digital_packet_headerparser_b_0, 'header_data'), (self.digital_header_payload_demux_0, 'header_data'))
-        self.msg_connect((self.network_socket_pdu_0, 'pdus'), (self.pdu_pdu_to_stream_x_0, 'pdus'))
         self.connect((self.analog_frequency_modulator_fc_0, 0), (self.blocks_multiply_xx_0, 0))
         self.connect((self.blocks_correctiq_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.blocks_correctiq_0, 0), (self.digital_ofdm_sync_sc_cfb_0, 0))
@@ -243,7 +240,7 @@ class Hands_on_RX(gr.top_block, Qt.QWidget):
         self.connect((self.digital_ofdm_sync_sc_cfb_0, 1), (self.digital_header_payload_demux_0, 1))
         self.connect((self.fft_vxx_0_0, 0), (self.digital_ofdm_chanest_vcvc_0, 0))
         self.connect((self.fft_vxx_1, 0), (self.digital_ofdm_frame_equalizer_vcvc_1, 0))
-        self.connect((self.pdu_pdu_to_stream_x_0, 0), (self.blocks_tag_gate_0, 0))
+        self.connect((self.zeromq_sub_source_0, 0), (self.blocks_tag_gate_0, 0))
 
 
     def closeEvent(self, event):
